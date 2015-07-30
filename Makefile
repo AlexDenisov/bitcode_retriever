@@ -1,9 +1,31 @@
 CC=/Applications/Xcode-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+
 BUILD_DIR=build
-BIN=$(BUILD_DIR)/bitcode_retriever
+
+SUBJECT_DIR=subject
+
+RETRIEVER_BIN=$(BUILD_DIR)/bitcode_retriever
 
 all:
-	$(CC) main.c -o $(BIN)
+	$(CC) main.c -o $(RETRIEVER_BIN)
+
+### Testing
+
+OBJECT_FILES=i386.o x86_64.o
+
+subject: $(BUILD_DIR) fat.o
+	@true
+
+fat.o: $(OBJECT_FILES)
+	cd $(BUILD_DIR) && lipo -create $^ -output $@
+
+%.o:
+	$(CC) -fembed-bitcode -c -arch $* $(SUBJECT_DIR)/main.c -o $(BUILD_DIR)/main.o
+	$(CC) -fembed-bitcode -c -arch $* $(SUBJECT_DIR)/power2.c -o $(BUILD_DIR)/power2.o
+	$(CC) -fembed-bitcode -arch $* $(BUILD_DIR)/main.o $(BUILD_DIR)/power2.o -o $(BUILD_DIR)/$@
+
+$(BUILD_DIR):
+	mkdir $@
 
 clean:
 	rm -rf $(BUILD_DIR)
