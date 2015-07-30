@@ -1,13 +1,14 @@
 CC=/Applications/Xcode-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
 
 BUILD_DIR=build
-
 SUBJECT_DIR=subject
+
+SOURCE_FILES=main.c macho_reader.c
 
 RETRIEVER_BIN=$(BUILD_DIR)/bitcode_retriever
 
-all:
-	$(CC) main.c -o $(RETRIEVER_BIN)
+all: $(BUILD_DIR)
+	$(CC) $(SOURCE_FILES) -o $(RETRIEVER_BIN)
 
 ### Testing
 
