@@ -1,6 +1,8 @@
 #include "macho_reader.h"
 
 #include <stdlib.h>
+#include <string.h>
+
 #include <mach-o/loader.h>
 #include <mach-o/swap.h>
 #include <mach/machine.h>
@@ -133,7 +135,9 @@ struct segment_command *load_llvm_segment_command(FILE *stream, struct mach_head
     struct load_command *cmd = load_load_command(stream, cmd_offset, swap_bytes);
     if (cmd->cmd == LC_SEGMENT) {
       struct segment_command *segment = load_segment_command(stream, cmd_offset, swap_bytes);
-      printf("seg_name: %s\n", segment->segname);
+      if (!strncmp("__LLVM", segment->segname, 7)) {
+        return segment;
+      }
       free(segment);
     }
     cmd_offset += cmd->cmdsize;
@@ -150,7 +154,9 @@ struct segment_command_64 *load_llvm_segment_command_64(FILE *stream, struct mac
     struct load_command *cmd = load_load_command(stream, cmd_offset, swap_bytes);
     if (cmd->cmd == LC_SEGMENT_64) {
       struct segment_command_64 *segment = load_segment_command_64(stream, cmd_offset, swap_bytes);
-      printf("seg_name: %s\n", segment->segname);
+      if (!strncmp("__LLVM", segment->segname, 7)) {
+        return segment;
+      }
       free(segment);
     }
     cmd_offset += cmd->cmdsize;
