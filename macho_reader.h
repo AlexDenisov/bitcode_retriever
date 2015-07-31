@@ -3,13 +3,19 @@
 
 struct mach_header;
 struct mach_header_64;
+struct fat_header;
 
 const char *get_cpu_type_name(struct mach_header *header);
 const char *get_cpu_type_name_64(struct mach_header_64 *header);
 
 uint32_t get_magic(FILE *stream, const int offset);
+
 int is_magic_64(const uint32_t magic);
+int is_fat(const uint32_t magic);
 int is_should_swap_bytes(const uint32_t magic);
+
+struct fat_header *load_fat_header(FILE *stream, const int swap_bytes);
+uint32_t offset_for_arch(FILE *stream, const int index, const int swap_bytes);
 
 struct mach_header *load_mach_header(FILE *stream, const int offset, const int swap_bytes);
 struct mach_header_64 *load_mach_header_64(FILE *stream, const int offset, const int swap_bytes);

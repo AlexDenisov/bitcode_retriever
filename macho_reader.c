@@ -4,18 +4,22 @@
 #include <string.h>
 
 #include <mach-o/loader.h>
+#include <mach-o/fat.h>
 #include <mach-o/swap.h>
 #include <mach/machine.h>
 
-static int uint32_size = sizeof(uint32_t);
+const static int uint32_size = sizeof(uint32_t);
 
-static int mach_header_size = sizeof(struct mach_header);
-static int mach_header_64_size = sizeof(struct mach_header_64);
+const static int fat_header_size = sizeof(struct fat_header);
+const static int fat_arch_size = sizeof(struct fat_arch);
 
-static int load_command_size = sizeof(struct load_command);
+const static int mach_header_size = sizeof(struct mach_header);
+const static int mach_header_64_size = sizeof(struct mach_header_64);
 
-static int segment_command_size = sizeof(struct segment_command);
-static int segment_command_64_size = sizeof(struct segment_command_64);
+const static int load_command_size = sizeof(struct load_command);
+
+const static int segment_command_size = sizeof(struct segment_command);
+const static int segment_command_64_size = sizeof(struct segment_command_64);
 
 struct _cpu_type_names {
   cpu_type_t cputype;
@@ -56,12 +60,49 @@ uint32_t get_magic(FILE *stream, int offset) {
   return magic;
 }
 
-int is_magic_64(uint32_t magic) {
+int is_magic_64(const uint32_t magic) {
   return magic == MH_MAGIC_64 || magic == MH_CIGAM_64;
 }
 
-int is_should_swap_bytes(uint32_t magic) {
-  return magic == MH_CIGAM || magic == MH_CIGAM_64;
+int is_should_swap_bytes(const uint32_t magic) {
+  return magic == MH_CIGAM || magic == MH_CIGAM_64 || magic == FAT_CIGAM;
+}
+
+int is_fat(const uint32_t magic) {
+  return magic == FAT_MAGIC || magic == FAT_CIGAM;
+}
+
+struct fat_header *load_fat_header(FILE *stream, const int swap_bytes) {
+  struct fat_header *header = calloc(fat_header_size, 1);
+  fread(header, fat_header_size, 1, stream);
+  rewind(stream);
+
+  if (swap_bytes) {
+    swap_fat_header(header, 0);
+  }
+
+  return header;
+}
+
+struct fat_arch *load_fat_arch(FILE *stream, const int offset, const int swap_bytes) {
+  struct fat_arch *arch = calloc(fat_arch_size, 1);
+  fseek(stream, offset, SEEK_SET);
+  fread(arch, fat_arch_size, 1, stream);
+  rewind(stream);
+
+  if (swap_bytes) {
+    swap_fat_arch(arch, 1, 0);
+  }
+
+  return arch;
+}
+
+uint32_t offset_for_arch(FILE *stream, const int index, const int swap_bytes) {
+  int offset = fat_header_size + fat_arch_size * index;
+  struct fat_arch *arch = load_fat_arch(stream, offset, swap_bytes);
+  uint32_t arch_offset = arch->offset;
+  free(arch);
+  return arch_offset;
 }
 
 struct mach_header *load_mach_header(FILE *stream, const int offset, const int swap_bytes) {
