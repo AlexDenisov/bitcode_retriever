@@ -34,6 +34,8 @@ void extract_bitcode(FILE *stream, const char *cpuname, const uint32_t offset, c
   fwrite(buffer, sizeof(char), size, output);
   free(buffer);
   fclose(output);
+
+  printf("%s.xar\n", cpuname);
 }
 
 void extract_bitcode_64(FILE *stream, const char *cpuname, const uint64_t offset, const uint64_t size) {
