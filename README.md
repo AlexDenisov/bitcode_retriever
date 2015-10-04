@@ -20,6 +20,8 @@ $ make
 
 ### Usage
 
+_Note: currently is does not work with static libraries, there is an opened issue #1, if ypu need this feature please a comment there, it will bump prioity of this project at my personal todo-list._
+
 To use `bitcode_retriever` simple feed him your binary and it'll produce archive with bitcode.
 
 It accepts both fat and non-fat binaries. For fat binaries it produces separate archive for each slice, e.g.:

@@ -1,4 +1,4 @@
-CC=/Applications/Xcode-Beta.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
+CC=$(shell which clang)
 
 BUILD_DIR=build
 SUBJECT_DIR=subject
