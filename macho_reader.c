@@ -33,6 +33,10 @@ static struct _cpu_type_names cpu_type_names[] = {
   { CPU_TYPE_ARM64, "arm64" }
 };
 
+int get_cpu_type_count() {
+  return (int)(sizeof(cpu_type_names) / sizeof(cpu_type_names[0]));
+}
+
 static const char *cpu_type_name(cpu_type_t cpu_type) {
   static int cpu_type_names_size = sizeof(cpu_type_names) / sizeof(struct _cpu_type_names);
   for (int i = 0; i < cpu_type_names_size; i++ ) {

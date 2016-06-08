@@ -8,6 +8,7 @@ struct mach_header;
 struct mach_header_64;
 struct fat_header;
 
+int get_cpu_type_count();
 const char *get_cpu_type_name(struct mach_header *header);
 const char *get_cpu_type_name_64(struct mach_header_64 *header);
 

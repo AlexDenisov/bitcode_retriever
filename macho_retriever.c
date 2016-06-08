@@ -14,8 +14,8 @@ struct bitcode_t *make_bitcode(FILE *stream, const char *cpuname, const uint64_t
   fseek(stream, offset, SEEK_SET);
   fread(bitcode->buffer, sizeof(char), size, stream);
 
-  bitcode->arch = calloc(sizeof(char), strlen(cpuname));
-  strcpy(bitcode->arch, cpuname);
+  bitcode->cpu = calloc(sizeof(char), strlen(cpuname));
+  strcpy(bitcode->cpu, cpuname);
   return bitcode;
 }
 

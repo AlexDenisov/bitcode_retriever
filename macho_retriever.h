@@ -7,7 +7,7 @@
 struct bitcode_t {
   uint64_t size;
   char* buffer;
-  char* arch;
+  char* cpu;
 };
 
 struct bitcode_t* make_bitcode(FILE* stream, const char* cpuname, const uint64_t offset, const uint64_t size);
