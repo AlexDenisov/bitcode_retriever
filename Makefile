@@ -3,7 +3,7 @@ CC=$(shell which clang)
 BUILD_DIR=build
 SUBJECT_DIR=subject
 
-SOURCE_FILES=main.c macho_reader.c
+SOURCE_FILES=main.c macho_retriever.c macho_reader.c
 
 RETRIEVER_BIN=$(BUILD_DIR)/bitcode_retriever
 
