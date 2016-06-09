@@ -33,6 +33,10 @@ static struct _cpu_type_names cpu_type_names[] = {
   { CPU_TYPE_ARM64, "arm64" }
 };
 
+int get_cpu_type_count() {
+  return (int)(sizeof(cpu_type_names) / sizeof(cpu_type_names[0]));
+}
+
 static const char *cpu_type_name(cpu_type_t cpu_type) {
   static int cpu_type_names_size = sizeof(cpu_type_names) / sizeof(struct _cpu_type_names);
   for (int i = 0; i < cpu_type_names_size; i++ ) {
@@ -60,6 +64,15 @@ uint32_t get_magic(FILE *stream, int offset) {
   return magic;
 }
 
+int is_magic_macho(const uint32_t magic) {
+  return magic == MH_MAGIC_64
+      || magic == MH_CIGAM_64
+      || magic == MH_MAGIC
+      || magic == MH_CIGAM
+      || magic == FAT_MAGIC
+      || magic == FAT_CIGAM;
+}
+
 int is_magic_64(const uint32_t magic) {
   return magic == MH_MAGIC_64 || magic == MH_CIGAM_64;
 }
@@ -73,7 +86,7 @@ int is_fat(const uint32_t magic) {
 }
 
 struct fat_header *load_fat_header(FILE *stream, const int swap_bytes) {
-  struct fat_header *header = calloc(fat_header_size, 1);
+  struct fat_header *header = malloc(fat_header_size);
   fread(header, fat_header_size, 1, stream);
   rewind(stream);
 
@@ -85,7 +98,7 @@ struct fat_header *load_fat_header(FILE *stream, const int swap_bytes) {
 }
 
 struct fat_arch *load_fat_arch(FILE *stream, const int offset, const int swap_bytes) {
-  struct fat_arch *arch = calloc(fat_arch_size, 1);
+  struct fat_arch *arch = malloc(fat_arch_size);
   fseek(stream, offset, SEEK_SET);
   fread(arch, fat_arch_size, 1, stream);
   rewind(stream);
@@ -106,7 +119,7 @@ uint32_t offset_for_arch(FILE *stream, const int index, const int swap_bytes) {
 }
 
 struct mach_header *load_mach_header(FILE *stream, const int offset, const int swap_bytes) {
-  struct mach_header *header = calloc(mach_header_size, 1);
+  struct mach_header *header = malloc(mach_header_size);
   fseek(stream, offset, SEEK_SET);
   fread(header, mach_header_size, 1, stream);
   rewind(stream);
@@ -119,7 +132,7 @@ struct mach_header *load_mach_header(FILE *stream, const int offset, const int s
 }
 
 struct mach_header_64 *load_mach_header_64(FILE *stream, const int offset, const int swap_bytes) {
-  struct mach_header_64 *header = calloc(mach_header_64_size, 1);
+  struct mach_header_64 *header = malloc(mach_header_64_size);
   fseek(stream, offset, SEEK_SET);
   fread(header, mach_header_64_size, 1, stream);
   rewind(stream);
@@ -132,7 +145,7 @@ struct mach_header_64 *load_mach_header_64(FILE *stream, const int offset, const
 }
 
 struct load_command *load_load_command(FILE *stream, const int offset, const int swap_bytes) {
-  struct load_command *command = calloc(load_command_size, 1);
+  struct load_command *command = malloc(load_command_size);
   fseek(stream, offset, SEEK_SET);
   fread(command, load_command_size, 1, stream);
   rewind(stream);
@@ -145,7 +158,7 @@ struct load_command *load_load_command(FILE *stream, const int offset, const int
 }
 
 struct segment_command *load_segment_command(FILE *stream, const int offset, const int swap_bytes) {
-  struct segment_command *command = calloc(segment_command_size, 1);
+  struct segment_command *command = malloc(segment_command_size);
   fseek(stream, offset, SEEK_SET);
   fread(command, segment_command_size, 1, stream);
   rewind(stream);
@@ -158,7 +171,7 @@ struct segment_command *load_segment_command(FILE *stream, const int offset, con
 }
 
 struct segment_command_64 *load_segment_command_64(FILE *stream, const int offset, const int swap_bytes) {
-  struct segment_command_64 *command = calloc(segment_command_64_size, 1);
+  struct segment_command_64 *command = malloc(segment_command_64_size);
   fseek(stream, offset, SEEK_SET);
   fread(command, segment_command_64_size, 1, stream);
   rewind(stream);
