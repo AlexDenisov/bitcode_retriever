@@ -20,7 +20,7 @@ $ make
 
 ### Usage
 
-_Note: currently is does not work with static libraries, there is an opened issue #1, if ypu need this feature please a comment there, it will bump prioity of this project at my personal todo-list._
+_Note: currently is does not work with static libraries, there is an opened issue #1, if you need this feature please a comment there, it will bump prioity of this project at my personal todo-list._
 
 To use `bitcode_retriever` simple feed him your binary and it'll produce archive with bitcode.
 
@@ -28,16 +28,26 @@ It accepts both fat and non-fat binaries. For fat binaries it produces separate 
 
 ```bash
 $ bitcode_retriever fat_app
-$ ls
-fat_app i386.xar x86_64.xar arm64.xar
+i386.xar
+x86_64.xar
+arm64.xar
 ```
 
 for non-fat binaries it produces just one archive with the bitcode:
 
 ```bash
 $ bitcode_retriever non_fat_app
-$ ls
-non_fat_app i386.xar
+i386.xar
+```
+
+To skip the xar archive and obtain the bitcode immediately, pass the `-extract` argument.
+
+```bash
+$ bitcode_retriever -extract fat_app
+i386.1.bc
+i386.2.bc
+x86_64.1.bc
+x86_64.2.bc
 ```
 
 The project provides a sample binaries, you can play a bit with them:
@@ -50,7 +60,7 @@ $ ./bitcode_retriever i386.o
 $ ./bitcode_retriever fat.o
 ```
 
-xar archive stores set of files with bitcode:
+The xar archive stores set of files with bitcode:
 
 ```bash
 $ xar -xf i386.o
