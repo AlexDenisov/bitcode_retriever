@@ -32,7 +32,7 @@ char *write_to_xar(struct bitcode_t *bitcode) {
   return filename;
 }
 
-void extract_xar(const char *path, const char *dest, char *files[], int *count) {
+int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
   xar_t x;
   xar_iter_t xi;
   xar_file_t xf;
@@ -42,13 +42,13 @@ void extract_xar(const char *path, const char *dest, char *files[], int *count) 
   x = xar_open(path, READ);
   if (!x) {
     fprintf(stderr, "Error opening archive\n");
-    return;
+    return 1;
   }
 
   xi = xar_iter_new();
   if (!xi) {
     fprintf(stderr, "Error creating xar iterator\n");
-    return;
+    return 2;
   }
 
   *count = 0;
@@ -73,7 +73,7 @@ void extract_xar(const char *path, const char *dest, char *files[], int *count) 
       continue;
     }
 
-    char *prefix = fname(dest, path);
+    char *prefix = fname(cpu, path);
     char *output_path = fname(prefix, "bc");
     FILE *output = fopen(output_path, "wb");
     free(output_path);
@@ -91,7 +91,7 @@ void extract_xar(const char *path, const char *dest, char *files[], int *count) 
       if (ret == XAR_STREAM_ERR) {
         fprintf(stderr, "Error extracting stream %s\n", path);
         free(path);
-        return;
+        return 3;
       }
 
       fwrite(buffer, sizeof(char), sizeof(buffer) - xs.avail_out, output);
@@ -107,10 +107,26 @@ void extract_xar(const char *path, const char *dest, char *files[], int *count) 
     fclose(output);
     files[(*count)++] = path;
   }
+  return 0;
 }
 
-void write_to_bitcode(struct bitcode_t *bitcode, char *files[], int *count) {
+int write_to_bitcode(struct bitcode_t *bitcode, char *files[], int *count) {
   char *xar_file = write_to_xar(bitcode);
-  extract_xar(xar_file, bitcode->cpu, files, count);
+  int extracted = extract_xar(xar_file, bitcode->cpu, files, count);
+  if(extracted != 0) {
+      fprintf(stderr, "Error extracting xar file %s\n", xar_file);
+      free(xar_file);
+      return 1;
+  }
+
+  int removed = remove(xar_file);
+  if(removed != 0) {
+      fprintf(stderr, "Error removing xar file %s\n", xar_file);
+      free(xar_file);
+      return 2;
+  }
+
   free(xar_file);
+  return 0;
+
 }
