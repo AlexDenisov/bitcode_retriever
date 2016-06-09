@@ -64,6 +64,15 @@ uint32_t get_magic(FILE *stream, int offset) {
   return magic;
 }
 
+int is_magic_macho(const uint32_t magic) {
+  return magic == MH_MAGIC_64
+      || magic == MH_CIGAM_64
+      || magic == MH_MAGIC
+      || magic == MH_CIGAM
+      || magic == FAT_MAGIC
+      || magic == FAT_CIGAM;
+}
+
 int is_magic_64(const uint32_t magic) {
   return magic == MH_MAGIC_64 || magic == MH_CIGAM_64;
 }

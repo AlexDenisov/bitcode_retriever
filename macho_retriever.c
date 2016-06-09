@@ -63,6 +63,11 @@ struct bitcode_archive *retrieve_bitcode_from_nonfat(FILE *stream, const uint32_
   }
 }
 
+int is_macho(FILE *stream) {
+  uint32_t magic = get_magic(stream, 0);
+  return is_magic_macho(magic);
+}
+
 void retrieve_bitcode(FILE *stream, struct bitcode_archive *bitcodes[], int *count) {
   uint32_t magic = get_magic(stream, 0);
   if (is_fat(magic)) {

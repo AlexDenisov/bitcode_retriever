@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
       } else {
         write_to_xar(archives[i]);
       }
+      free(archives[i]);
     }
   }
 

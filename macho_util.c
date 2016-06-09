@@ -75,11 +75,13 @@ int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
 
     char *prefix = fname(cpu, path);
     char *output_path = fname(prefix, "bc");
+    free(path);
+    free(prefix);
+
     FILE *output = fopen(output_path, "wb");
-    free(output_path);
     if (!output) {
-      fprintf(stderr, "Error opening output file %s\n", path);
-      free(path);
+      fprintf(stderr, "Error opening output file %s\n", output_path);
+      free(output_path);
       continue;
     }
 
@@ -89,8 +91,8 @@ int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
     int32_t ret;
     while ((ret = xar_extract_tostream(&xs)) != XAR_STREAM_END) {
       if (ret == XAR_STREAM_ERR) {
-        fprintf(stderr, "Error extracting stream %s\n", path);
-        free(path);
+        fprintf(stderr, "Error extracting stream %s\n", output_path);
+        free(output_path);
         return 3;
       }
 
@@ -101,11 +103,11 @@ int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
     }
 
     if (xar_extract_tostream_end(&xs) != XAR_STREAM_OK) {
-      fprintf(stderr, "Error ending stream %s\n", path);
+      fprintf(stderr, "Error ending stream %s\n", output_path);
     }
 
     fclose(output);
-    files[(*count)++] = path;
+    files[(*count)++] = output_path;
   }
   return 0;
 }
@@ -113,20 +115,19 @@ int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
 int write_to_bitcode(struct bitcode_archive *bitcode, char *files[], int *count) {
   char *xar_file = write_to_xar(bitcode);
   int extracted = extract_xar(xar_file, bitcode->cpu, files, count);
-  if(extracted != 0) {
-      fprintf(stderr, "Error extracting xar file %s\n", xar_file);
-      free(xar_file);
-      return 1;
+  if (extracted != 0) {
+    fprintf(stderr, "Error extracting xar file %s\n", xar_file);
+    free(xar_file);
+    return 1;
   }
 
   int removed = remove(xar_file);
-  if(removed != 0) {
-      fprintf(stderr, "Error removing xar file %s\n", xar_file);
-      free(xar_file);
-      return 2;
+  if (removed != 0) {
+    fprintf(stderr, "Error removing xar file %s\n", xar_file);
+    free(xar_file);
+    return 2;
   }
 
   free(xar_file);
   return 0;
-
 }
