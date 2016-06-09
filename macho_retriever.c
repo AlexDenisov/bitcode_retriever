@@ -6,8 +6,10 @@
 
 #include <string.h>
 
-struct bitcode_t *make_bitcode(FILE *stream, const char *cpuname, const uint64_t offset, const uint64_t size) {
-  struct bitcode_t *bitcode = malloc(sizeof(struct bitcode_t));
+int max_number_of_archives() { return get_cpu_type_count(); }
+
+struct bitcode_archive *make_bitcode(FILE *stream, const char *cpuname, const uint64_t offset, const uint64_t size) {
+  struct bitcode_archive *bitcode = malloc(sizeof(struct bitcode_archive));
   bitcode->size = size;
 
   bitcode->buffer = calloc(sizeof(char), size);
@@ -19,7 +21,7 @@ struct bitcode_t *make_bitcode(FILE *stream, const char *cpuname, const uint64_t
   return bitcode;
 }
 
-struct bitcode_t *extract_bitcode(FILE *stream, const int offset, const int swap_bytes) {
+struct bitcode_archive *extract_bitcode(FILE *stream, const int offset, const int swap_bytes) {
   struct mach_header *header = load_mach_header(stream, offset, swap_bytes);
   const char *cpu_name = get_cpu_type_name(header);
   struct segment_command *segment = load_llvm_segment_command(stream, header, offset, swap_bytes);
@@ -28,13 +30,13 @@ struct bitcode_t *extract_bitcode(FILE *stream, const int offset, const int swap
     return NULL;
   }
 
-  struct bitcode_t *bitcode = make_bitcode(stream, cpu_name, offset + segment->fileoff, segment->filesize);
+  struct bitcode_archive *bitcode = make_bitcode(stream, cpu_name, offset + segment->fileoff, segment->filesize);
   free(segment);
   free(header);
   return bitcode;
 }
 
-struct bitcode_t *extract_bitcode_64(FILE *stream, const int offset, const int swap_bytes) {
+struct bitcode_archive *extract_bitcode_64(FILE *stream, const int offset, const int swap_bytes) {
   struct mach_header_64 *header = load_mach_header_64(stream, offset, swap_bytes);
   const char *cpu_name = get_cpu_type_name_64(header);
   struct segment_command_64 *segment = load_llvm_segment_command_64(stream, header, offset, swap_bytes);
@@ -43,13 +45,13 @@ struct bitcode_t *extract_bitcode_64(FILE *stream, const int offset, const int s
     return NULL;
   }
 
-  struct bitcode_t *bitcode = make_bitcode(stream, cpu_name, offset + segment->fileoff, segment->filesize);
+  struct bitcode_archive *bitcode = make_bitcode(stream, cpu_name, offset + segment->fileoff, segment->filesize);
   free(segment);
   free(header);
   return bitcode;
 }
 
-struct bitcode_t *retrieve_bitcode_from_nonfat(FILE *stream, const uint32_t offset) {
+struct bitcode_archive *retrieve_bitcode_from_nonfat(FILE *stream, const uint32_t offset) {
   uint32_t magic = get_magic(stream, offset);
   int is64 = is_magic_64(magic);
   int swap_bytes = is_should_swap_bytes(magic);
@@ -61,7 +63,7 @@ struct bitcode_t *retrieve_bitcode_from_nonfat(FILE *stream, const uint32_t offs
   }
 }
 
-void retrieve_bitcode(FILE *stream, struct bitcode_t *bitcodes[], int *count) {
+void retrieve_bitcode(FILE *stream, struct bitcode_archive *bitcodes[], int *count) {
   uint32_t magic = get_magic(stream, 0);
   if (is_fat(magic)) {
     int swap_bytes = is_should_swap_bytes(magic);

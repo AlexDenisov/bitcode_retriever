@@ -1,4 +1,3 @@
-#include "macho_reader.h"
 #include "macho_retriever.h"
 #include "macho_util.h"
 
@@ -16,18 +15,18 @@ int main(int argc, char *argv[]) {
 
   FILE *stream = fopen(filename, "rb");
 
-  struct bitcode_t *bitcodes[get_cpu_type_count()];
-  int count;
-  retrieve_bitcode(stream, bitcodes, &count);
+  struct bitcode_archive *archives[max_number_of_archives()];
+  int archive_count;
+  retrieve_bitcode(stream, archives, &archive_count);
 
-  for (int i = 0; i < count; i++) {
-    if (bitcodes[i]) {
+  for (int i = 0; i < archive_count; i++) {
+    if (archives[i]) {
       if (extract) {
         char *bitcode_files[1024];
         int bitcode_count;
-        write_to_bitcode(bitcodes[i], bitcode_files, &bitcode_count);
+        write_to_bitcode(archives[i], bitcode_files, &bitcode_count);
       } else {
-        write_to_xar(bitcodes[i]);
+        write_to_xar(archives[i]);
       }
     }
   }

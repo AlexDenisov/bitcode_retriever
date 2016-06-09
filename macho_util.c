@@ -16,7 +16,7 @@ char *fname(const char *name, const char *ext) {
   return filename;
 }
 
-char *write_to_xar(struct bitcode_t *bitcode) {
+char *write_to_xar(struct bitcode_archive *bitcode) {
   char *filename = fname(bitcode->cpu, "xar");
   FILE *output = fopen(filename, "wb");
 
@@ -110,7 +110,7 @@ int extract_xar(const char *path, const char *cpu, char *files[], int *count) {
   return 0;
 }
 
-int write_to_bitcode(struct bitcode_t *bitcode, char *files[], int *count) {
+int write_to_bitcode(struct bitcode_archive *bitcode, char *files[], int *count) {
   char *xar_file = write_to_xar(bitcode);
   int extracted = extract_xar(xar_file, bitcode->cpu, files, count);
   if(extracted != 0) {
