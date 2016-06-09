@@ -11,7 +11,7 @@ extern "C" {
 struct bitcode_archive {
   uint64_t size;
   char* buffer;
-  char* cpu;
+  const char* cpu;
 };
 
 struct bitcode_archive* make_bitcode(FILE* stream, const char* cpuname, const uint64_t offset, const uint64_t size);

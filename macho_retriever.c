@@ -12,12 +12,11 @@ struct bitcode_archive *make_bitcode(FILE *stream, const char *cpuname, const ui
   struct bitcode_archive *bitcode = malloc(sizeof(struct bitcode_archive));
   bitcode->size = size;
 
-  bitcode->buffer = calloc(sizeof(char), size);
+  bitcode->buffer = malloc(sizeof(char) * size);
   fseek(stream, offset, SEEK_SET);
   fread(bitcode->buffer, sizeof(char), size, stream);
 
-  bitcode->cpu = calloc(sizeof(char), strlen(cpuname));
-  strcpy(bitcode->cpu, cpuname);
+  bitcode->cpu = cpuname;
   return bitcode;
 }
 

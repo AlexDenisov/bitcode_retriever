@@ -8,10 +8,11 @@
 #include <xar/xar.h>
 
 char *fname(const char *name, const char *ext) {
-  int length = strlen(name) + 1 + strlen(ext);
+  const char *delimiter = ".";
+  int length = strlen(name) + strlen(delimiter) + strlen(ext) + 1;
   char *filename = calloc(sizeof(char), length);
   strcpy(filename, name);
-  strcat(filename, ".");
+  strcat(filename, delimiter);
   strcat(filename, ext);
   return filename;
 }

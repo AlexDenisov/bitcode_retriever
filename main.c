@@ -25,9 +25,16 @@ int main(int argc, char *argv[]) {
         char *bitcode_files[1024];
         int bitcode_count;
         write_to_bitcode(archives[i], bitcode_files, &bitcode_count);
+        for (int j = 0; j < bitcode_count; j++) {
+          printf("%s\n", bitcode_files[j]);
+          free(bitcode_files[j]);
+        }
       } else {
-        write_to_xar(archives[i]);
+        char *xar_name = write_to_xar(archives[i]);
+        printf("%s\n", xar_name);
+        free(xar_name);
       }
+      free(archives[i]->buffer);
       free(archives[i]);
     }
   }
