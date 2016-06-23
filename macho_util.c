@@ -7,6 +7,8 @@
 #include <string.h>
 #include <xar/xar.h>
 
+#include <libxml/parser.h>
+
 char *fname(const char *name, const char *ext) {
   const char *delimiter = ".";
   int length = strlen(name) + strlen(delimiter) + strlen(ext) + 1;
@@ -130,5 +132,64 @@ int write_to_bitcode(struct bitcode_archive *bitcode, char *files[], int *count)
   }
 
   free(xar_file);
+  return 0;
+}
+
+int get_options(xmlNode *option_parent, char *options[], int *size) {
+  xmlNode *cur_node = NULL;
+  *size = 0;
+  for (cur_node = option_parent; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE && strcmp((const char *)cur_node->name, "option") == 0) {
+      char *content = (char *)xmlNodeGetContent(cur_node);
+      options[(*size)++] = content;
+    }
+  }
+  return 0;
+}
+
+int get_linker_options(xmlNode *a_node, char *options[], int *size) {
+  xmlNode *cur_node = NULL;
+  for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+    if (cur_node->type == XML_ELEMENT_NODE) {
+      if (strcmp((const char *)cur_node->name, "link-options") == 0) {
+        return get_options(cur_node->children, options, size);
+      } else {
+        get_linker_options(cur_node->children, options, size);
+      }
+    }
+  }
+  return 1;
+}
+
+int retrieve_toc(const char *xar_path, const char *toc_path) {
+  xar_t x;
+  x = xar_open(xar_path, READ);
+  if (!x) {
+    fprintf(stderr, "Error opening xar archive %s\n", xar_path);
+    return 1;
+  }
+  xar_serialize(x, toc_path);
+  return 0;
+}
+
+int retrieve_linker_options(const char *xar_path, char *options[], int *size) {
+  const char *toc_file = "toc.temp";
+  retrieve_toc(xar_path, toc_file);
+
+  xmlDoc *doc = NULL;
+  doc = xmlReadFile(toc_file, NULL, 0);
+  if (doc == NULL) {
+    fprintf(stderr, "Cannot parse TOC %s\n", toc_file);
+    remove(toc_file);
+    return 1;
+  }
+
+  get_linker_options(xmlDocGetRootElement(doc), options, size);
+
+  xmlFreeDoc(doc);
+  xmlCleanupParser();
+
+  remove(toc_file);
+
   return 0;
 }
