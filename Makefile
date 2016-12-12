@@ -8,7 +8,7 @@ SOURCE_FILES=main.c macho_retriever.c macho_reader.c macho_util.c
 RETRIEVER_BIN=$(BUILD_DIR)/bitcode_retriever
 
 all: $(BUILD_DIR)
-	$(CC) $(SOURCE_FILES) -o $(RETRIEVER_BIN) -lxar -lxml2
+	$(CC) $(SOURCE_FILES) -o $(RETRIEVER_BIN) -I/usr/include/libxml2 -lxar -lxml2
 
 ### Testing
 
