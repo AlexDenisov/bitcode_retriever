@@ -40,10 +40,10 @@ $ bitcode_retriever non_fat_app
 i386.xar
 ```
 
-To skip the xar archive and obtain the bitcode immediately, pass the `-extract` argument.
+To skip the xar archive and obtain the bitcode immediately, pass the `-e` argument.
 
 ```bash
-$ bitcode_retriever -extract fat_app
+$ bitcode_retriever -e fat_app
 i386.1.bc
 i386.2.bc
 x86_64.1.bc
